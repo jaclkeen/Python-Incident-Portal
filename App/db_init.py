@@ -36,10 +36,10 @@ def CreateTableCommands():
         )
         """,
         """
-        CREATE TABLE Order(
+        CREATE TABLE CustomerOrder(
             OrderId SERIAL PRIMARY KEY,
             OrderDate DATE NOT NULL,
-            CustomerId REFERENCES Customer
+            CustomerId integer REFERENCES Customer
         )
         """
     )
@@ -66,4 +66,4 @@ def CreateTables(tableCommands):
             conn.close()
 
 
-# CreateTables(CreateTableCommands())
+CreateTables(CreateTableCommands())
