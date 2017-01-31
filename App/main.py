@@ -1,5 +1,7 @@
+from termcolor import colored
 from db_HrUser import FindHrUser, CreateNewHRUser
 from db_Departments import GetDepartments
+from db_Incidents import CreateNewIncident, GetIncidents
 
 def ShowTitle():
     print ('\n=================================')
@@ -7,10 +9,13 @@ def ShowTitle():
     print ('=================================')
 
 def HomePrompt():
-    ShowTitle()
     HrUser = raw_input("To start, enter your first name and last name. Type 'new user' to create a new user.\n> ")
 
-    return HrUser
+    if len(HrUser.split(" ")) == 2:
+        return HrUser
+    else:
+        print colored("\nPlease enter a first and last name with a space in between them.", "red")
+        execute()
 
 def NewHrUserPrompt():
     NewUserFirstName = raw_input("First name: > ")
@@ -24,14 +29,16 @@ def NewHrUserPrompt():
     CreateNewHRUser(NewUserFirstName, NewUserLastName, NewUserDepartmentId)
 
 def execute():
+    ShowTitle()
     hr_user = HomePrompt()
-
     if hr_user != 'new user':
-        firstname = hr_user.split(" ")[0]
-        lastname = hr_user.split(" ")[1]
+        firstname, lastname = hr_user.split(" ")[0], hr_user.split(" ")[1]
         loggedInUser = FindHrUser(firstname, lastname)
-        print ("\nWelcome back, " + loggedInUser + "!")
-        IncidentMenu()
+        if loggedInUser != None:
+            print colored("\nWelcome back, " + loggedInUser[0] + "!", "yellow")
+            IncidentMenu()
+        else:
+            execute()
     else:
         ShowTitle()
         NewHrUserPrompt()
@@ -43,5 +50,8 @@ def IncidentMenu():
     print("3: Exit")
 
     IncidentMenuInput = raw_input("> ")
+    IncidentMenuFunctions[IncidentMenuInput]()
+
+IncidentMenuFunctions = {'1': CreateNewIncident, '2': GetIncidents, '3': execute}
 
 execute()

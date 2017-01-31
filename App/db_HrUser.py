@@ -1,5 +1,6 @@
 import psycopg2
 from db_config import DB_Config
+from termcolor import colored
 
 def FindHrUser(firstname, lastname):
     try:
@@ -11,12 +12,15 @@ def FindHrUser(firstname, lastname):
 
         cur.execute(query, data)
 
-        HrUser = firstname + " " + lastname
+        for u in cur:
+            HrUser = u
 
         return HrUser
 
+
     except (Exception, psycopg2.DatabaseError) as error:
-        print("Could not find user: {0} {1}".format(firstname, lastname))
+        print colored("\nCould not find user:{0} {1}".format(firstname, lastname), "red")
+        return None
 
     finally:
         if conn is not None:
