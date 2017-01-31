@@ -2,10 +2,14 @@ import psycopg2
 from db_config import DB_Config
 
 def GetDepartments():
+    Departments = list()
     conn = psycopg2.connect(DB_Config())
     cur = conn.cursor()
 
-    Departments = cur.execute( """ SELECT * FROM Departments """ )
+    cur.execute( """ SELECT * FROM Departments """ )
+
+    for d in cur:
+      Departments.append(d)
 
     cur.close()
     conn.commit()

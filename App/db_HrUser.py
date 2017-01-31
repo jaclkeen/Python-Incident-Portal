@@ -5,13 +5,13 @@ def FindHrUser(firstname, lastname):
     try:
         conn = psycopg2.connect(DB_Config())
         cur = conn.cursor()
+        data = (firstname.lower(), lastname.lower())
+        query = """ SELECT FirstName, LastName FROM HRUser
+                    WHERE lower(FirstName) LIKE %s AND lower(LastName) LIKE %s; """
 
-        HrUser = cur.execute(
-            """
-                SELECT *
-                FROM HRUser
-                WHERE lower(FirstName) LIKE {0} AND lower(LastName) LIKE {1}
-            """.format(firstname.lower(), lastname.lower()))
+        cur.execute(query, data)
+
+        HrUser = firstname + " " + lastname
 
         return HrUser
 
@@ -22,5 +22,22 @@ def FindHrUser(firstname, lastname):
         if conn is not None:
             conn.close()
 
-# def CreateNewUser(firstname, lastname, department):
+def CreateNewHRUser(firstname, lastname, department):
+    try:
+        conn = psycopg2.connect(DB_Config())
+        cur = conn.cursor()
+        data = (firstname, lastname, department)
+        query = """ INSERT INTO HRUser (FirstName, LastName, DepartmentId) VALUES (%s, %s, %s); """
+
+        cur.execute(query, data)
+
+        cur.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Error creating a new HR user.", error)
+
+    finally:
+        if conn is not None:
+            conn.close()
 
