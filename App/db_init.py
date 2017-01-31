@@ -36,18 +36,39 @@ def CreateTableCommands():
         )
         """,
         """
-        CREATE TABLE Order(
+        CREATE TABLE CustomerOrder(
             OrderId SERIAL PRIMARY KEY,
             OrderDate DATE NOT NULL,
-            CustomerId REFERENCES Customer
+            CustomerId integer REFERENCES Customer
         )
         """
     )
 
     return commands
 
+def insertCommands():
+    commands = (
+        """
+        INSERT INTO Departments VALUES (1, 'Apparel');
+        """,
+        """
+        INSERT INTO Departments VALUES (2, 'Electronics');
+        """,
+        """
+        INSERT INTO Departments VALUES (3, 'Toys & Games');
+        """,
+        """
+        INSERT INTO Departments VALUES (4, 'Books');
+        """,
+        """
+        INSERT INTO Departments VALUES (5, 'Home Furnishings');
+        """
+    )
+
+    return commands
+
 # create PostgreSQL tables
-def CreateTables(tableCommands):
+def ExecuteDBCommands(tableCommands):
     try:
         conn = psycopg2.connect(DB_Config())
         cur = conn.cursor()
@@ -66,4 +87,5 @@ def CreateTables(tableCommands):
             conn.close()
 
 
-# CreateTables(CreateTableCommands())
+ExecuteDBCommands(CreateTableCommands())
+ExecuteDBCommands(insertCommands())
