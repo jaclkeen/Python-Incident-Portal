@@ -1,5 +1,6 @@
 import psycopg2
 from db_config import DB_Config
+import datetime
 
 # define db tables
 def CreateTableCommands():
@@ -38,15 +39,16 @@ def CreateTableCommands():
         """
         CREATE TABLE CustomerOrder(
             OrderId SERIAL PRIMARY KEY,
-            OrderDate DATE NOT NULL,
-            CustomerId integer REFERENCES Customer
+            OrderDate VARCHAR(40) NOT NULL,
+            CustomerId integer REFERENCES Customer,
+            HRUserId integer REFERENCES HRUser
         )
         """
     )
 
     return commands
 
-def insertCommands():
+def InsertCommands():
     commands = (
         """
         INSERT INTO Departments VALUES (1, 'Apparel');
@@ -62,7 +64,44 @@ def insertCommands():
         """,
         """
         INSERT INTO Departments VALUES (5, 'Home Furnishings');
+        """,
         """
+        INSERT INTO Customer (FirstName, LastName)
+        VALUES ('Jacob', 'Keen')
+        """,
+        """
+        INSERT INTO Customer (FirstName, LastName)
+        VALUES ('Aaron', 'Keen')
+        """
+    )
+
+    return commands
+
+def CreatingOrders():
+    today = datetime.date.today()
+    today.strftime('%b %d %Y')
+
+    commands = (
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 2, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 2, Null);
+        """.format(today)
     )
 
     return commands
@@ -88,4 +127,5 @@ def ExecuteDBCommands(tableCommands):
 
 
 ExecuteDBCommands(CreateTableCommands())
-ExecuteDBCommands(insertCommands())
+ExecuteDBCommands(InsertCommands())
+ExecuteDBCommands(CreatingOrders())

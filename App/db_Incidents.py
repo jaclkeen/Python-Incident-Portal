@@ -1,8 +1,8 @@
 import psycopg2
 from db_config import DB_Config
 
-def CreateNewIncident():
-    return False
+def CreateNewIncident(HrUser):
+    return HrUser
 
-def GetIncidents():
-    return False
+def GetIncidents(HrUser):
+    return HrUser

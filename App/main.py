@@ -2,14 +2,16 @@ from termcolor import colored
 from db_HrUser import FindHrUser, CreateNewHRUser
 from db_Departments import GetDepartments
 from db_Incidents import CreateNewIncident, GetIncidents
+from db_CustomerOrders import GetCustomerOrders
 
 def ShowTitle():
-    print ('\n=================================')
-    print ('     CUSTOMER SERVICE PORTAL     ')
-    print ('=================================')
+    print ('\n=====================================')
+    print ('       CUSTOMER SERVICE PORTAL       ')
+    print ('=====================================')
 
 def HomePrompt():
-    HrUser = raw_input("To start, enter your first name and last name. Type 'new user' to create a new user.\n> ")
+    print colored("- To start, enter your first and last name.\n- Or type 'new user' to create a new user.\n- Or press CTRL + C to quit.", "yellow")
+    HrUser = raw_input("> ")
 
     if len(HrUser.split(" ")) == 2:
         return HrUser
@@ -18,15 +20,23 @@ def HomePrompt():
         execute()
 
 def NewHrUserPrompt():
+    print colored("Create a new user, or type 'back' to cancel.", "yellow")
     NewUserFirstName = raw_input("First name: > ")
-    NewUserLastName = raw_input("Last name: > ")
+    if NewUserFirstName == 'back': return execute()
 
-    print("\nEnter the number of the department you are in?")
+    NewUserLastName = raw_input("Last name: > ")
+    if NewUserLastName == 'back': return execute()
+
+    print("\nWhat department you are in, {0}?".format(NewUserFirstName))
     for department in GetDepartments():
         print (str(department[0]) + ": " + department[1])
 
     NewUserDepartmentId = raw_input("Department: > ")
+    if NewUserDepartmentId == 'back': return execute()
+
     CreateNewHRUser(NewUserFirstName, NewUserLastName, NewUserDepartmentId)
+    print colored("\nUser {0} {1} was succesfully created!".format(NewUserFirstName, NewUserLastName), "yellow")
+    execute()
 
 def execute():
     ShowTitle()
@@ -35,23 +45,68 @@ def execute():
         firstname, lastname = hr_user.split(" ")[0], hr_user.split(" ")[1]
         loggedInUser = FindHrUser(firstname, lastname)
         if loggedInUser != None:
-            print colored("\nWelcome back, " + loggedInUser[0] + "!", "yellow")
-            IncidentMenu()
+            print colored("\nWelcome back, " + loggedInUser[0] + "!", "white")
+            IncidentMenu(loggedInUser)
         else:
             execute()
     else:
         ShowTitle()
         NewHrUserPrompt()
 
-def IncidentMenu():
+def IncidentMenu(CurrentHrUser):
     ShowTitle()
     print("1: Create Incident")
     print("2: List My Incidents")
-    print("3: Exit")
+    print("3: Back")
 
     IncidentMenuInput = raw_input("> ")
-    IncidentMenuFunctions[IncidentMenuInput]()
 
-IncidentMenuFunctions = {'1': CreateNewIncident, '2': GetIncidents, '3': execute}
+    if (int(IncidentMenuInput) == 1) or (int(IncidentMenuInput) == 2):
+        return IncidentMenuFunctions[IncidentMenuInput](CurrentHrUser)
+    else:
+        return IncidentMenuFunctions[IncidentMenuInput]()
+
+def CreateIncidentPrompt(CurrentHrUser):
+    print colored("\nEnter customer name (<first> <last>)", "yellow")
+    CustomerName = raw_input("> ")
+
+    CustomerOrders = GetCustomerOrders(CustomerName)
+
+    if len(CustomerOrders) == 0:
+        print colored("\n{0} has no orders.".format(CustomerName), "red")
+        IncidentMenu(CurrentHrUser)
+    else:
+        print colored("\nOrder Number\tCustomer Name\tOrder Date", "yellow")
+        for order in CustomerOrders:
+            print("{0}\t\t{1}\t{2}\t".format(order[0], order[4], order[1]))
+
+        print colored("\nPlease select an order number.", "yellow")
+        print colored("Or type 'back' to return to the incident menu.", "yellow")
+        OrderNumOption = raw_input("> ")
+        ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName)
+
+def ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName):
+    if OrderNumOption == 'back':
+        IncidentMenu(CurrentHrUser)
+    else:
+        print colored("\nChoose incident type:","yellow")
+        print colored("1. Defective Product")
+        print colored("2. Product Not Delivered")
+        print colored("3. Back")
+
+        IncidentPromptSelection = raw_input("> ")
+        ShowOrderIncident(IncidentPromptSelection, CurrentHrUser)
+
+def ShowOrderIncident(IncidentSelection, CurrentHrUser):
+    if int(IncidentSelection) == 3:
+        return IncidentMenu(CurrentHrUser)
+    elif int(IncidentSelection) == 1:
+        print ('1')
+    else:
+        print ('2')
+
+
+IncidentMenuFunctions = {'1': CreateIncidentPrompt, '2': GetIncidents, '3': execute}
+
 
 execute()
