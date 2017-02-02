@@ -27,21 +27,22 @@ def CreateTableCommands():
         )
         """,
         """
-        CREATE TABLE Incident(
-            IncidentId SERIAL PRIMARY KEY,
-            CustomerId integer REFERENCES Customer,
-            IncidentTypeName VARCHAR(100) NOT NULL,
-            OrderIsReplaceable BOOLEAN NOT NULL,
-            OrderIsRefundable BOOLEAN NOT NULL,
-            InformationOfOrder BOOLEAN NOT NULL
-        )
-        """,
-        """
         CREATE TABLE CustomerOrder(
             OrderId SERIAL PRIMARY KEY,
             OrderDate VARCHAR(40) NOT NULL,
             CustomerId integer REFERENCES Customer,
             HRUserId integer REFERENCES HRUser
+        )
+        """,
+        """
+        CREATE TABLE Incident(
+            IncidentId SERIAL PRIMARY KEY,
+            OrderId INTEGER REFERENCES CustomerOrder,
+            IncidentTypeName VARCHAR(100) NOT NULL,
+            OrderIsReplaceable BOOLEAN NOT NULL,
+            OrderIsRefundable BOOLEAN NOT NULL,
+            InformationOfOrder BOOLEAN NOT NULL,
+            Resolution TEXT
         )
         """
     )
@@ -126,6 +127,6 @@ def ExecuteDBCommands(tableCommands):
             conn.close()
 
 
-ExecuteDBCommands(CreateTableCommands())
-ExecuteDBCommands(InsertCommands())
-ExecuteDBCommands(CreatingOrders())
+# ExecuteDBCommands(CreateTableCommands())
+# ExecuteDBCommands(InsertCommands())
+# ExecuteDBCommands(CreatingOrders())

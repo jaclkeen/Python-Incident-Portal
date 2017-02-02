@@ -90,23 +90,32 @@ def ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName):
         IncidentMenu(CurrentHrUser)
     else:
         print colored("\nChoose incident type:","yellow")
-        print colored("1. Defective Product")
-        print colored("2. Product Not Delivered")
-        print colored("3. Back")
+        print ("1. Defective Product")
+        print ("2. Product Not Delivered")
+        print ("3. Request Information")
+        print ("4. Back")
 
         IncidentPromptSelection = raw_input("> ")
-        ShowOrderIncident(IncidentPromptSelection, CurrentHrUser)
+        ShowOrderIncident(OrderNumOption, IncidentPromptSelection, CurrentHrUser, CustomerName)
 
-def ShowOrderIncident(IncidentSelection, CurrentHrUser):
+def ShowOrderIncident(OrderNum, IncidentSelection, CurrentHrUser, CustomerName):
     if int(IncidentSelection) == 3:
         return IncidentMenu(CurrentHrUser)
     elif int(IncidentSelection) == 1:
-        print ('1')
+        NewIncident = CreateNewIncident(OrderNum, "Defective Product", True, True, False)
+        print NewIncident
+
+    elif int(IncidentSelection) == 2:
+        NewIncident = CreateNewIncident(OrderNum, "Product Not Delivered", False, True, False)
+        print NewIncident
+
     else:
-        print ('2')
+        NewIncident = CreateNewIncident(OrderNum, "Request Information", False, False, True)
+        print NewIncident
+
+
+    # DisplayNewIncident(NewIncident)
 
 
 IncidentMenuFunctions = {'1': CreateIncidentPrompt, '2': GetIncidents, '3': execute}
-
-
 execute()
