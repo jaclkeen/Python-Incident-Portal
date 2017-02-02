@@ -3,6 +3,30 @@ from db_config import DB_Config
 
 def CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation):
     try:
+        Incident = FindIncident(OrderNum)
+        conn = psycopg2.connect(DB_Config())
+        cur = conn.cursor()
+
+        NewData = (OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation)
+        NewIncidentQuery = """
+                      INSERT INTO Incident (OrderId, IncidentTypeName, OrderIsReplaceable, OrderIsRefundable, InformationOfOrder, Resolution)
+                      VALUES (%s, %s, %s, %s, %s, Null)
+                  """
+
+        if Incident == None:
+          NewIncident = cur.execute(NewIncidentQuery, NewData)
+          cur.close()
+          conn.commit()
+
+          return FindIncident(OrderNum)
+        else:
+          return Incident
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        return error
+
+def FindIncident(OrderNum):
+    try:
         Incident = None
         conn = psycopg2.connect(DB_Config())
         cur = conn.cursor()
@@ -14,27 +38,12 @@ def CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isReq
                     JOIN Customer AS c ON co.CustomerId = c.UserId
                     WHERE i.OrderId = %s
                 """
-
-        NewData = (OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation)
-        NewIncidentQuery = """
-                      INSERT INTO Incident (OrderId, IncidentTypeName, OrderIsReplaceable, OrderIsRefundable, InformationOfOrder, Resolution)
-                      VALUES (%s, %s, %s, %s, %s, Null)
-                  """
-        cur.execute(FindIncidentQuery, FindData)
+        cur.execute(FindIncidentQuery, OrderNum)
         for i in cur:
-            Incident = i
-
-        if Incident == None:
-          cur.execute(NewIncidentQuery, NewData)
-          cur.close()
-          conn.commit()
-
-          return CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation)
-        else:
-          return Incident
+          return i
 
     except (Exception, psycopg2.DatabaseError) as error:
-        return error
+      return error
 
 def GetIncidents():
   return False

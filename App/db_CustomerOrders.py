@@ -10,8 +10,7 @@ def GetCustomerOrders(CustomerName):
         query = """
                     SELECT co.*, c.FirstName || ' ' || c.LastName
                     FROM CustomerOrder AS co
-                    JOIN Customer AS c
-                    ON co.CustomerId = c.UserId
+                    JOIN Customer AS c ON co.CustomerId = c.UserId
                     WHERE lower(c.FirstName) LIKE lower(%s)
                     AND lower(c.LastName) LIKE lower(%s)
                 """

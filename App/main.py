@@ -1,7 +1,7 @@
 from termcolor import colored
 from db_HrUser import FindHrUser, CreateNewHRUser
 from db_Departments import GetDepartments
-from db_Incidents import CreateNewIncident, GetIncidents
+from db_Incidents import CreateNewIncident, FindIncident, GetIncidents
 from db_CustomerOrders import GetCustomerOrders
 
 def ShowTitle():
@@ -78,7 +78,7 @@ def CreateIncidentPrompt(CurrentHrUser):
     else:
         print colored("\nOrder Number\tCustomer Name\tOrder Date", "yellow")
         for order in CustomerOrders:
-            print("{0}\t\t{1}\t{2}\t".format(order[0], order[4], order[1]))
+            print str(order[0]) + "\t\t" + str(order[4]) + "\t" + str(order[1])
 
         print colored("\nPlease select an order number.", "yellow")
         print colored("Or type 'back' to return to the incident menu.", "yellow")
@@ -88,7 +88,8 @@ def CreateIncidentPrompt(CurrentHrUser):
 def ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName):
     if OrderNumOption == 'back':
         IncidentMenu(CurrentHrUser)
-    else:
+
+    if FindIncident(OrderNumOption) == None:
         print colored("\nChoose incident type:","yellow")
         print ("1. Defective Product")
         print ("2. Product Not Delivered")
@@ -96,7 +97,10 @@ def ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName):
         print ("4. Back")
 
         IncidentPromptSelection = raw_input("> ")
-        ShowOrderIncident(OrderNumOption, IncidentPromptSelection, CurrentHrUser, CustomerName)
+        if int(IncidentPromptSelection) != 4:
+            ShowOrderIncident(OrderNumOption, IncidentPromptSelection, CurrentHrUser, CustomerName)
+    else:
+        ShowIncident(OrderNumOption)
 
 def ShowOrderIncident(OrderNum, IncidentSelection, CurrentHrUser, CustomerName):
     if int(IncidentSelection) == 3:
@@ -113,9 +117,21 @@ def ShowOrderIncident(OrderNum, IncidentSelection, CurrentHrUser, CustomerName):
         NewIncident = CreateNewIncident(OrderNum, "Request Information", False, False, True)
         print NewIncident
 
+def ShowIncident(OrderNum):
+    Incident = FindIncident(OrderNum)
+    print Incident
+    print colored("\nIncident:\n", "yellow") + "======================================================="
+    print colored("Customer Name: ", "yellow") + Incident[7] + "\t\t" + colored("Order Number: ","yellow") + str(Incident[1])
+    print colored("Incident Type: ", "yellow") + Incident[2] + colored("\n\nLabels:", "yellow")
+    if Incident[3] == True: print("* This order is refundable")
+    if Incident[4] == True: print("* This order is replaceable")
+    if Incident[5] == True: print("* Non-Tranactional incident")
+    print colored("\nResolution:", "yellow")
+    if Incident[6] == None:
+        Resolution = raw_input("> ")
 
-    # DisplayNewIncident(NewIncident)
-
+    else:
+        print(Incident[6])
 
 IncidentMenuFunctions = {'1': CreateIncidentPrompt, '2': GetIncidents, '3': execute}
 execute()
