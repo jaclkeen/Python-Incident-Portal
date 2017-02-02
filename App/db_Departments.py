@@ -9,7 +9,7 @@ def GetDepartments():
     cur.execute( """ SELECT * FROM Departments """ )
 
     for d in cur:
-      Departments.append(d)
+        Departments.append(d)
 
     cur.close()
     conn.commit()

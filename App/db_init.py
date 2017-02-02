@@ -1,5 +1,6 @@
 import psycopg2
 from db_config import DB_Config
+import datetime
 
 # define db tables
 def CreateTableCommands():
@@ -26,27 +27,29 @@ def CreateTableCommands():
         )
         """,
         """
-        CREATE TABLE Incident(
-            IncidentId SERIAL PRIMARY KEY,
+        CREATE TABLE CustomerOrder(
+            OrderId SERIAL PRIMARY KEY,
+            OrderDate VARCHAR(40) NOT NULL,
             CustomerId integer REFERENCES Customer,
-            IncidentTypeName VARCHAR(100) NOT NULL,
-            OrderIsReplaceable BOOLEAN NOT NULL,
-            OrderIsRefundable BOOLEAN NOT NULL,
-            InformationOfOrder BOOLEAN NOT NULL
+            HRUserId integer REFERENCES HRUser
         )
         """,
         """
-        CREATE TABLE CustomerOrder(
-            OrderId SERIAL PRIMARY KEY,
-            OrderDate DATE NOT NULL,
-            CustomerId integer REFERENCES Customer
+        CREATE TABLE Incident(
+            IncidentId SERIAL PRIMARY KEY,
+            OrderId INTEGER REFERENCES CustomerOrder,
+            IncidentTypeName VARCHAR(100) NOT NULL,
+            OrderIsReplaceable BOOLEAN NOT NULL,
+            OrderIsRefundable BOOLEAN NOT NULL,
+            InformationOfOrder BOOLEAN NOT NULL,
+            Resolution TEXT
         )
         """
     )
 
     return commands
 
-def insertCommands():
+def InsertCommands():
     commands = (
         """
         INSERT INTO Departments VALUES (1, 'Apparel');
@@ -62,7 +65,44 @@ def insertCommands():
         """,
         """
         INSERT INTO Departments VALUES (5, 'Home Furnishings');
+        """,
         """
+        INSERT INTO Customer (FirstName, LastName)
+        VALUES ('Jacob', 'Keen')
+        """,
+        """
+        INSERT INTO Customer (FirstName, LastName)
+        VALUES ('Aaron', 'Keen')
+        """
+    )
+
+    return commands
+
+def CreatingOrders():
+    today = datetime.date.today()
+    today.strftime('%b %d %Y')
+
+    commands = (
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 1, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 2, Null);
+        """.format(today),
+        """
+        INSERT INTO CustomerOrder (OrderDate, CustomerId, HRUserId)
+        VALUES ('{0}', 2, Null);
+        """.format(today)
     )
 
     return commands
@@ -87,5 +127,6 @@ def ExecuteDBCommands(tableCommands):
             conn.close()
 
 
-ExecuteDBCommands(CreateTableCommands())
-ExecuteDBCommands(insertCommands())
+# ExecuteDBCommands(CreateTableCommands())
+# ExecuteDBCommands(InsertCommands())
+# ExecuteDBCommands(CreatingOrders())
