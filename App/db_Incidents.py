@@ -1,5 +1,32 @@
 import psycopg2
 from db_config import DB_Config
+from termcolor import colored
+
+def GetOrderIncidentStatus(OrderId):
+    try:
+        conn = psycopg2.connect(DB_Config())
+        cur = conn.cursor()
+
+        Data = (OrderId)
+        StatusQuery = """
+                    SELECT Resolution
+                    FROM Incident
+                    WHERE OrderId = {0}
+                  """.format(OrderId)
+
+        cur.execute(StatusQuery)
+
+        for s in cur:
+          if s[0] != None:
+            return colored("Resolved", "green")
+          else:
+            return colored("Unresolved", "red")
+
+    except (Exception, psycopg2.DatabaseError) as error:
+      print error
+    finally:
+      cur.close()
+
 
 def CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation, HrUser):
     try:
@@ -64,5 +91,27 @@ def SaveResolution(Resolution, OrderNum):
     except (Exception, psycopg2.DatabaseError) as error:
         return error
 
-def GetIncidents():
-  return False
+def GetUnresolvedIncidents():
+    try:
+        Incidents = list()
+        conn = psycopg2.connect(DB_Config())
+        cur = conn.cursor()
+        ResolutionQuery = """
+                    SELECT i.OrderId, i.IncidentTypeName, o.OrderDate, c.FirstName || ' ' || c.LastName, i.Resolution
+                    FROM Incident AS i
+                    JOIN CustomerOrder AS o
+                    ON i.OrderId = o.OrderId
+                    JOIN Customer AS c
+                    ON o.CustomerId = c.UserId
+                  """
+
+        cur.execute(ResolutionQuery)
+        for r in cur:
+          if r[4] == None:
+            Incidents.append(r)
+
+        return Incidents
+        cur.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        return error
