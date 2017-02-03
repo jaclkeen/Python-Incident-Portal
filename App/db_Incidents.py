@@ -1,16 +1,16 @@
 import psycopg2
 from db_config import DB_Config
 
-def CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation):
+def CreateNewIncident(OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation, HrUser):
     try:
         Incident = FindIncident(OrderNum)
         conn = psycopg2.connect(DB_Config())
         cur = conn.cursor()
 
-        NewData = (OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation)
+        NewData = (OrderNum, IncidentType, isReplaceable, isRefundable, isRequestingInformation, HrUser)
         NewIncidentQuery = """
-                      INSERT INTO Incident (OrderId, IncidentTypeName, OrderIsReplaceable, OrderIsRefundable, InformationOfOrder, Resolution)
-                      VALUES (%s, %s, %s, %s, %s, Null)
+                      INSERT INTO Incident (OrderId, IncidentTypeName, OrderIsReplaceable, OrderIsRefundable, InformationOfOrder, Resolution, HRResponsible)
+                      VALUES (%s, %s, %s, %s, %s, Null, %s)
                   """
 
         if Incident == None:
@@ -44,6 +44,25 @@ def FindIncident(OrderNum):
 
     except (Exception, psycopg2.DatabaseError) as error:
       return error
+
+def SaveResolution(Resolution, OrderNum):
+    try:
+        conn = psycopg2.connect(DB_Config())
+        cur = conn.cursor()
+
+        Data = (Resolution, OrderNum)
+        ResolutionQuery = """
+                      UPDATE Incident
+                      SET Resolution = %s
+                      WHERE OrderId = %s
+                  """
+
+        cur.execute(ResolutionQuery, Data)
+        cur.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        return error
 
 def GetIncidents():
   return False

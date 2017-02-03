@@ -38,6 +38,7 @@ def CreateTableCommands():
         CREATE TABLE Incident(
             IncidentId SERIAL PRIMARY KEY,
             OrderId INTEGER REFERENCES CustomerOrder,
+            HRResponsible INTEGER REFERENCES HrUser,
             IncidentTypeName VARCHAR(100) NOT NULL,
             OrderIsReplaceable BOOLEAN NOT NULL,
             OrderIsRefundable BOOLEAN NOT NULL,
@@ -129,4 +130,4 @@ def ExecuteDBCommands(tableCommands):
 
 # ExecuteDBCommands(CreateTableCommands())
 # ExecuteDBCommands(InsertCommands())
-# ExecuteDBCommands(CreatingOrders())
+ExecuteDBCommands(CreatingOrders())
