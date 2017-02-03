@@ -1,7 +1,7 @@
 from termcolor import colored
 from db_HrUser import FindHrUser, CreateNewHRUser
 from db_Departments import GetDepartments
-from db_Incidents import CreateNewIncident, FindIncident, GetIncidents
+from db_Incidents import CreateNewIncident, FindIncident, GetIncidents, SaveResolution
 from db_CustomerOrders import GetCustomerOrders
 
 def ShowTitle():
@@ -63,8 +63,11 @@ def IncidentMenu(CurrentHrUser):
 
     if (int(IncidentMenuInput) == 1) or (int(IncidentMenuInput) == 2):
         return IncidentMenuFunctions[IncidentMenuInput](CurrentHrUser)
-    else:
+    elif int(IncidentMenuInput) == 3:
         return IncidentMenuFunctions[IncidentMenuInput]()
+    else:
+        print colored("\nInvalid command", "red")
+        IncidentMenu(CurrentHrUser)
 
 def CreateIncidentPrompt(CurrentHrUser):
     print colored("\nEnter customer name (<first> <last>)", "yellow")
@@ -98,40 +101,45 @@ def ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName):
 
         IncidentPromptSelection = raw_input("> ")
         if int(IncidentPromptSelection) != 4:
-            ShowOrderIncident(OrderNumOption, IncidentPromptSelection, CurrentHrUser, CustomerName)
+            CreateIncident(OrderNumOption, IncidentPromptSelection, CurrentHrUser, CustomerName)
+        else:
+            print colored("\nInvalid command", "red")
+            ChooseIncidentTypePrompt(OrderNumOption, CurrentHrUser, CustomerName)
     else:
-        ShowIncident(OrderNumOption)
+        ShowIncident(OrderNumOption, CurrentHrUser)
 
-def ShowOrderIncident(OrderNum, IncidentSelection, CurrentHrUser, CustomerName):
-    if int(IncidentSelection) == 3:
+def CreateIncident(OrderNum, IncidentSelection, CurrentHrUser, CustomerName):
+    if int(IncidentSelection) == 4:
         return IncidentMenu(CurrentHrUser)
     elif int(IncidentSelection) == 1:
-        NewIncident = CreateNewIncident(OrderNum, "Defective Product", True, True, False)
-        print NewIncident
-
+        NewIncident = CreateNewIncident(OrderNum, "Defective Product", True, True, False, CurrentHrUser[2])
     elif int(IncidentSelection) == 2:
-        NewIncident = CreateNewIncident(OrderNum, "Product Not Delivered", False, True, False)
-        print NewIncident
-
+        NewIncident = CreateNewIncident(OrderNum, "Product Not Delivered", False, True, False, CurrentHrUser[2])
     else:
-        NewIncident = CreateNewIncident(OrderNum, "Request Information", False, False, True)
-        print NewIncident
+        NewIncident = CreateNewIncident(OrderNum, "Request Information", False, False, True, CurrentHrUser[2])
+    ShowIncident(OrderNum, CurrentHrUser)
 
-def ShowIncident(OrderNum):
+def ShowIncident(OrderNum, CurrentHrUser):
     Incident = FindIncident(OrderNum)
     print Incident
     print colored("\nIncident:\n", "yellow") + "======================================================="
-    print colored("Customer Name: ", "yellow") + Incident[7] + "\t\t" + colored("Order Number: ","yellow") + str(Incident[1])
-    print colored("Incident Type: ", "yellow") + Incident[2] + colored("\n\nLabels:", "yellow")
-    if Incident[3] == True: print("* This order is refundable")
-    if Incident[4] == True: print("* This order is replaceable")
-    if Incident[5] == True: print("* Non-Tranactional incident")
+    print colored("Customer Name: ", "yellow") + Incident[8] + "\t\t" + colored("Order Number: ","yellow") + str(Incident[1])
+    print colored("Incident Type: ", "yellow") + Incident[3] + colored("\n\nLabels:", "yellow")
+    if Incident[4] == True: print("* This order is refundable")
+    if Incident[5] == True: print("* This order is replaceable")
+    if Incident[6] == True: print("* Non-Tranactional incident")
     print colored("\nResolution:", "yellow")
-    if Incident[6] == None:
+    if Incident[7] == None:
         Resolution = raw_input("> ")
-
+        SaveResolution(Resolution, OrderNum)
+        print colored("Your resolution on order #{0} was succesfully saved!", "yellow").format(OrderNum)
+        IncidentMenu(CurrentHrUser)
     else:
-        print(Incident[6])
+        print("{0}\n=======================================================").format(Incident[7])
+        print colored("\nPress enter to return to the incident menu.","yellow")
+        back = raw_input("> ")
+        IncidentMenu(CurrentHrUser)
+
 
 IncidentMenuFunctions = {'1': CreateIncidentPrompt, '2': GetIncidents, '3': execute}
 execute()
